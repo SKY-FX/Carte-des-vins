@@ -4,10 +4,12 @@ import {jsPDF} from "jspdf";
 
 function App() {
 
-  const [listeDesMillesimesFiltres, setListeDesMillesimesFiltres] =  useState([]);
   const [montantTotal, setMontantTotal] =  useState(0);
+  const [nbBouteilles, setNbBouteilles] =  useState(0);
+  const [listeDesMillesimesFiltres, setListeDesMillesimesFiltres] =  useState([]);
   const [listeDesMillesimes, setListeDesMillesimes] =  useState([]);
   const [listeDesMillesimesManquants, setListeDesMillesimesManquants] =  useState([]);
+  const [error, setError] =  useState('');
 
   const onChangeFilter = (event) => {
     let millesimesSorted = listeDesMillesimes.slice(0, listeDesMillesimes.length);
@@ -28,7 +30,7 @@ function App() {
     }
 
     setListeDesMillesimes(millesimesSorted);
-    // setListeDesMillesimesFiltres(millesimesSorted);
+    setNbBouteilles(millesimesSorted.length);
   };
 
   const onTextSearch = (textToSearch) => {
@@ -56,17 +58,18 @@ function App() {
       }
 
       if (result.length) {
-
-        setListeDesMillesimes(result);
         let local_montantTotal = 0;
         result.map(mill => {
           if (mill.PrixVente !== null) local_montantTotal += mill.PrixVente;
           return local_montantTotal;
         })
+        setListeDesMillesimes(result);
         setMontantTotal(local_montantTotal);
+        setNbBouteilles(result.length);
       }
       else {
         setListeDesMillesimes([{Année : "Pas de résultat pour cette recherche : " + textToSearch}]);
+        setNbBouteilles(0);
         setMontantTotal(0);
       };
     }
@@ -79,13 +82,14 @@ function App() {
       );
       setListeDesMillesimes(millesimesSorted);
       setMontantTotal(local_montantTotal);
+      setNbBouteilles(millesimesSorted.length);
     };
   }
 
   const listeDesVins = (lignes) => {
     lignes.splice(0, 2);
-    // const NB_MAX = lignes.length;
-    const NB_MAX = 50;
+    const NB_MAX = lignes.length;
+    // const NB_MAX = 50;
     let millesimesSorted = lignes.slice(0, NB_MAX);
     for (let kk=0; kk<millesimesSorted.length; ++kk) millesimesSorted[kk].splice(0, 1);
 
@@ -114,21 +118,28 @@ function App() {
 
   const onChangeFile = () => {
     const input = document.getElementById('input');
-    readXlsxFile(input.files[0]).then((lignes) => {
-      const maListe = listeDesVins(lignes);
-      setListeDesMillesimes(maListe);
-      setListeDesMillesimesFiltres(maListe);
+    readXlsxFile(input.files[0])
+      .then((lignes) => {
+        const maListe = listeDesVins(lignes);
+        let local_montantTotal = 0;
+        maListe.map(mill => {
+          if (mill.PrixVente !== null) local_montantTotal += mill.PrixVente;
+          return local_montantTotal;
+        })
 
-      let local_montantTotal = 0;
-      maListe.map(mill => {
-        if (mill.PrixVente !== null) local_montantTotal += mill.PrixVente;
-        return local_montantTotal;
+        setListeDesMillesimes(maListe);
+        setListeDesMillesimesFiltres(maListe);
+        setMontantTotal(local_montantTotal);
+        setNbBouteilles(maListe.length);
+        setError('');
       })
-
-      setMontantTotal(local_montantTotal);
-    });
-
-
+      .catch(error => {
+        setListeDesMillesimes([]);
+        setListeDesMillesimesFiltres([]);
+        setNbBouteilles(0);
+        setMontantTotal(0);
+        setError(error);
+      });
   }
 
   const onMissingYears = () => {
@@ -163,19 +174,21 @@ function App() {
 
   return (
     <div style={{display: 'flex', flexDirection: 'column', margin: 'auto 5vw'}} id='report'>
-      <header style={{display: 'flex', justifyContent: 'center', margin: "2vw auto"}} className='pdfReport'>
-        <h1>CATALOGUE DES MILLESIMES</h1>
-      </header>
+      <h1>CATALOGUE DES MILLESIMES</h1>
       <main>
         <input type="file" id="input" onChange={onChangeFile} style={{margin:'20px auto'}}/>
-        <CarteDesVins
-          listeDesMillesimes={listeDesMillesimes}
-          listeDesMillesimesManquants={listeDesMillesimesManquants}
-          onChangeFilter={onChangeFilter}
-          onMissingYears={onMissingYears}
-          onTextSearch={onTextSearch}
-          montantTotal={montantTotal}
-        />
+        {error ?
+          <h4 style={{color:'red'}}>Veuillez sélectionner un autre fichier au format excel</h4> :
+          <CarteDesVins
+              listeDesMillesimes={listeDesMillesimes}
+              listeDesMillesimesManquants={listeDesMillesimesManquants}
+              onChangeFilter={onChangeFilter}
+              onMissingYears={onMissingYears}
+              onTextSearch={onTextSearch}
+              montantTotal={montantTotal}
+              nbBouteilles={nbBouteilles}
+            />
+          }
       </main>
       <footer>
         <h5>Sylvain Chabaud</h5>
@@ -185,49 +198,118 @@ function App() {
   );
 }
 
-
-const generatePDF = () => {
-
-  const pdfReport = document.getElementsByClassName("pdfReport");
-  var reports = Array.prototype.filter.call(pdfReport, function(testElement){
-    return testElement;
-  });
-
-  const divReport = document.querySelector('#report');
-  const width = divReport.clientWidth;
-  const height = divReport.clientHeight;
-
-  const globalDivPdf = document.createElement('div');
-
-  globalDivPdf.style.margin ="40px";
-  globalDivPdf.style.width= `calc(${width}px - ${globalDivPdf.style.margin}*2)`;
-  globalDivPdf.style.height=`calc(${height}px - ${globalDivPdf.style.margin}*2)`;
-
-  reports.map(report => globalDivPdf.append(report.cloneNode(true)))
-
-  // Default export is a4 paper, portrait, using millimeters for units
-  const report = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: [width, height]
-  });
-
-  report.html(globalDivPdf).then(() => report.save('report.pdf'));
-}
-
 function CarteDesVins(props) {
-  const {listeDesMillesimes, listeDesMillesimesManquants, onChangeFilter, onMissingYears, onTextSearch, montantTotal} = props;
+  const {listeDesMillesimes, listeDesMillesimesManquants, onChangeFilter, onMissingYears, onTextSearch, montantTotal, nbBouteilles} = props;
+
+  const generatePDF = () => {
+    if (listeDesMillesimes) {
+
+      // GET NAVIGATOR WIDTH
+      const divReport = document.querySelector('#report');
+      const HTML_Width  = divReport.clientWidth;
+
+      // SET PDF SIZE
+      const MARGIN = 40;
+      var PDF_Width = HTML_Width;
+      var PDF_Height = (PDF_Width*1.618);
+
+      // CREATE MAIN PDF DIV
+      const globalDivPdf = document.createElement('div');
+      globalDivPdf.style.cssText = "display: flex; flex-direction: column";
+      globalDivPdf.style.marginLeft = `${MARGIN }px`;
+      globalDivPdf.style.width = `${HTML_Width-MARGIN*2}px`;
+
+      // CREATE HEADER
+      const header = document.createElement('div');
+      header.style.cssText = "display: flex; flex-direction: column; text-align: center; justify-content: center; letter-spacing: 5px";
+      header.style.width = HTML_Width-MARGIN*2 + 'px';
+      header.style.height = PDF_Height + 'px';
+
+      const pdfTitre = document.createElement('h1');
+      pdfTitre.innerText = "VINANTIC";
+      header.append(pdfTitre);
+
+      const pdfSousTitre = document.createElement('h3');
+      pdfSousTitre.innerText = `Millésimes de 1940 à 2008`;
+      header.append(pdfSousTitre);
+
+      // ADD HEADER TO MAIN PDF DIV
+      globalDivPdf.append(header);
+
+      let compt = 1;
+      listeDesMillesimes.forEach((millesime, index) => {
+        /// CREATE CARD CONTENT HEADER
+        const cardContentHeaderLeftDiv = document.createElement('h3');
+        cardContentHeaderLeftDiv.style.cssText = "margin: 0";
+        cardContentHeaderLeftDiv.innerHTML=`${millesime.Année??'Aucune année'} ${millesime.Nom ? (' - ' + millesime.Nom) : ''} ${millesime.Appelation ? (' - ' + millesime.Appelation) : ''}`;
+
+        const cardContentHeaderRightDiv = document.createElement('h4');
+        cardContentHeaderRightDiv.style.cssText = "margin: 0";
+        cardContentHeaderRightDiv.innerHTML=`${millesime.PrixVente ? (millesime.PrixVente + ' €') : 'Prix indisponible'}`;
+
+        const cardHeaderDiv = document.createElement('div');
+        cardHeaderDiv.style.cssText = "display: flex; flex-direction: row; justify-content: space-between";
+        cardHeaderDiv.append(cardContentHeaderLeftDiv);
+        cardHeaderDiv.append(cardContentHeaderRightDiv);
+
+        /// CREATE CARD CONTENT FOOTER
+        const cardContentFooterLeftDiv = document.createElement('h5');
+        cardContentFooterLeftDiv.style.cssText = "margin: 5px 0 0 0";
+        cardContentFooterLeftDiv.innerHTML=`${millesime.Description?.Global??''} ${millesime.Description?.Details ? (' - ' + millesime.Description.Details) : ''}`;
+
+        const cardContentFooterRightDiv = document.createElement('h5');
+        cardContentFooterRightDiv.style.cssText = "margin: 5px 0 0 0";
+        cardContentFooterRightDiv.innerHTML=`${millesime.Type ? 'Vin ' + millesime.Type : ''} ${millesime.Contenant ? (' - ' + millesime.Contenant) : ''}`;
+
+        const cardFooterDiv = document.createElement('div');
+        cardFooterDiv.style.cssText = "display: flex; flex-direction: row; justify-content: space-between";
+        cardFooterDiv.append(cardContentFooterLeftDiv);
+        cardFooterDiv.append(cardContentFooterRightDiv);
+
+        /// CREATE CARD
+        const cardDiv = document.createElement('div');
+        cardDiv.style.cssText = "height: 50px; display: flex; flex-direction: column; background-color: rgba(240,240,240,0.2); border-radius: 5px; padding: 10px 20px; margin-top: 20px; border-bottom:2px solid black"
+        cardDiv.setAttribute("key", "liste-" + index);
+        cardDiv.append(cardHeaderDiv);
+        cardDiv.append(cardFooterDiv);
+
+        /// ADD TO MAIN DIV
+        globalDivPdf.append(cardDiv);
+
+        // GET CARD DIV HEIGHT
+        const pxToNb = (pxValue) => parseInt((pxValue).substring(0, (pxValue).indexOf('px')));
+        const DIV_HEIGHT = pxToNb(cardDiv.style.borderBottomWidth) + pxToNb(cardDiv.style.height) + pxToNb(cardDiv.style.padding)*2 + pxToNb(cardDiv.style.marginTop);
+
+        // END PAGE MANAGER
+        if ((compt*DIV_HEIGHT) >= (PDF_Height-DIV_HEIGHT)) {
+          const division = document.createElement('div');
+          division.style.cssText = `height: ${PDF_Height-compt*DIV_HEIGHT }px`;
+          globalDivPdf.append(division);
+          compt=1;
+        }
+        else ++compt;
+      });
+
+      // CREATE PDF HANDLE
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "pt",
+        format: [PDF_Width , PDF_Height]
+      });
+
+      // ADD AND SAVE MAIN DIV TO PDF SPLIT PAGE OPTION (PDF_Height)
+      pdf.html(globalDivPdf, {pagesplit: true}).then(() => pdf.save("Catalogue de vins.pdf"));
+    }
+  };
 
   return (
     (listeDesMillesimes.length) ? <>
         <div className='pdfReport'>
           <h2>Carte des vins</h2>
-          <h3>{(listeDesMillesimes[0].Année?.toString())?.indexOf("Pas de résultat") ?
-            listeDesMillesimes.length
-            : 0} bouteilles et magnums disponibles ({montantTotal} €)</h3>
+          <h3>{nbBouteilles} bouteilles et magnums disponibles {montantTotal ? '(' + montantTotal + ' €)' : ""}</h3>
         </div>
 
-        <input type="button" onClick={generatePDF} value="Export PDF" style={{marginBottom:'10px', padding:'10px', borderRadius:'5px'}}/>
+        <input name="ExportPDF" type="button" id="input" onClick={generatePDF} value="EXPORT PDF" style={{marginBottom:'10px', padding:'10px'}}/>
 
         <div style={{display:'flex'}}>
           <div style={{flex:'1', textAlign:'center', padding:'20px', border:'1px solid black', borderRadius:'5px', backgroundColor:'rgba(100,200,200,0.9)'}}>

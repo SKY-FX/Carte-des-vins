@@ -22,6 +22,7 @@ function App() {
       for (let ii=(jj+1); ii<(millesimesSorted.length); ++ii) {
         const [ligneCourante] = millesimesSorted.slice(ii, ii+1);
         if (lignePredente[element] > ligneCourante[element]) {
+
           millesimesSorted.splice(jj, 1, ligneCourante);
           millesimesSorted.splice(ii, 1, lignePredente);
           [lignePredente] = millesimesSorted.slice(jj, jj+1);
@@ -31,6 +32,7 @@ function App() {
 
     setListeDesMillesimes(millesimesSorted);
     setNbBouteilles(millesimesSorted.length);
+    return millesimesSorted;
   };
 
   const onTextSearch = (textToSearch) => {
@@ -203,7 +205,6 @@ function CarteDesVins(props) {
 
   const generatePDF = () => {
     if (listeDesMillesimes) {
-
       // GET NAVIGATOR WIDTH
       const divReport = document.querySelector('#report');
       const HTML_Width  = divReport.clientWidth;
@@ -236,59 +237,86 @@ function CarteDesVins(props) {
       // ADD HEADER TO MAIN PDF DIV
       globalDivPdf.append(header);
 
-      let compt = 1;
-      listeDesMillesimes.forEach((millesime, index) => {
-        /// CREATE CARD CONTENT HEADER
-        const cardContentHeaderLeftDiv = document.createElement('h3');
-        cardContentHeaderLeftDiv.style.cssText = "margin: 0";
-        cardContentHeaderLeftDiv.innerHTML=`${millesime.Année??'Aucune année'} ${millesime.Nom ? (' - ' + millesime.Nom) : ''} ${millesime.Appelation ? (' - ' + millesime.Appelation) : ''}`;
 
-        const cardContentHeaderRightDiv = document.createElement('h4');
-        cardContentHeaderRightDiv.style.cssText = "margin: 0";
-        cardContentHeaderRightDiv.innerHTML=`${millesime.PrixVente ? (millesime.PrixVente + ' €') : 'Prix indisponible'}`;
+      // MILLESIMES SORTED BY YEAR
+      const millesimes_Sorted = onChangeFilter({target:{name:"yearsFilter"}});
 
-        const cardHeaderDiv = document.createElement('div');
-        cardHeaderDiv.style.cssText = "display: flex; flex-direction: row; justify-content: space-between";
-        cardHeaderDiv.append(cardContentHeaderLeftDiv);
-        cardHeaderDiv.append(cardContentHeaderRightDiv);
+      let millesimesByTab = [];
+      let millesimesByTabFinal = [];
+      let flagLoop = 0;
 
-        /// CREATE CARD CONTENT FOOTER
-        const cardContentFooterLeftDiv = document.createElement('h5');
-        cardContentFooterLeftDiv.style.cssText = "margin: 5px 0 0 0";
-        cardContentFooterLeftDiv.innerHTML=`${millesime.Description?.Global??''} ${millesime.Description?.Details ? (' - ' + millesime.Description.Details) : ''}`;
-
-        const cardContentFooterRightDiv = document.createElement('h5');
-        cardContentFooterRightDiv.style.cssText = "margin: 5px 0 0 0";
-        cardContentFooterRightDiv.innerHTML=`${millesime.Type ? 'Vin ' + millesime.Type : ''} ${millesime.Contenant ? (' - ' + millesime.Contenant) : ''}`;
-
-        const cardFooterDiv = document.createElement('div');
-        cardFooterDiv.style.cssText = "display: flex; flex-direction: row; justify-content: space-between";
-        cardFooterDiv.append(cardContentFooterLeftDiv);
-        cardFooterDiv.append(cardContentFooterRightDiv);
-
-        /// CREATE CARD
-        const cardDiv = document.createElement('div');
-        cardDiv.style.cssText = "height: 50px; display: flex; flex-direction: column; background-color: rgba(240,240,240,0.2); border-radius: 5px; padding: 10px 20px; margin-top: 20px; border-bottom:2px solid black"
-        cardDiv.setAttribute("key", "liste-" + index);
-        cardDiv.append(cardHeaderDiv);
-        cardDiv.append(cardFooterDiv);
-
-        /// ADD TO MAIN DIV
-        globalDivPdf.append(cardDiv);
-
-        // GET CARD DIV HEIGHT
-        const pxToNb = (pxValue) => parseInt((pxValue).substring(0, (pxValue).indexOf('px')));
-        const DIV_HEIGHT = pxToNb(cardDiv.style.borderBottomWidth) + pxToNb(cardDiv.style.height) + pxToNb(cardDiv.style.padding)*2 + pxToNb(cardDiv.style.marginTop);
-
-        // END PAGE MANAGER
-        if ((compt*DIV_HEIGHT) >= (PDF_Height-DIV_HEIGHT)) {
-          const division = document.createElement('div');
-          division.style.cssText = `height: ${PDF_Height-compt*DIV_HEIGHT }px`;
-          globalDivPdf.append(division);
-          compt=1;
+      // CREATE SORTED MILLESIMES YEARS IN PAGE TAB
+      millesimes_Sorted.forEach((millesime, index) => {
+        console.info("flagLoop", flagLoop, Math.floor(millesime.Année/10));
+        if((flagLoop !== Math.floor(millesime.Année/10) || (millesimes_Sorted.length === index+1))) {
+          flagLoop = Math.floor(millesime.Année/10);
+          millesimesByTabFinal.push(millesimesByTab);
+          millesimesByTab = [millesime];
         }
-        else ++compt;
+        else {
+          millesimesByTab.push(millesime);
+        }
       });
+      console.info("liste", millesimesByTabFinal);
+
+      // TODO : DELETE DOUBLON
+
+      millesimesByTabFinal.forEach((millesimeSorted) => {
+        let compt = 1;
+        millesimeSorted.forEach((millesime, index) => {
+          /// CREATE CARD CONTENT HEADER
+          const cardContentHeaderLeftDiv = document.createElement('h3');
+          cardContentHeaderLeftDiv.style.cssText = "margin: 0";
+          cardContentHeaderLeftDiv.innerHTML=`${millesime.Année??'Aucune année'} ${millesime.Nom ? (' - ' + millesime.Nom) : ''} ${millesime.Appelation ? (' - ' + millesime.Appelation) : ''}`;
+
+          const cardContentHeaderRightDiv = document.createElement('h4');
+          cardContentHeaderRightDiv.style.cssText = "margin: 0";
+          cardContentHeaderRightDiv.innerHTML=`${millesime.PrixVente ? (millesime.PrixVente + ' €') : 'Prix indisponible'}`;
+
+          const cardHeaderDiv = document.createElement('div');
+          cardHeaderDiv.style.cssText = "display: flex; flex-direction: row; justify-content: space-between";
+          cardHeaderDiv.append(cardContentHeaderLeftDiv);
+          cardHeaderDiv.append(cardContentHeaderRightDiv);
+
+          /// CREATE CARD CONTENT FOOTER
+          const cardContentFooterLeftDiv = document.createElement('h5');
+          cardContentFooterLeftDiv.style.cssText = "margin: 5px 0 0 0";
+          cardContentFooterLeftDiv.innerHTML=`${millesime.Description?.Global??''} ${millesime.Description?.Details ? (' - ' + millesime.Description.Details) : ''}`;
+
+          const cardContentFooterRightDiv = document.createElement('h5');
+          cardContentFooterRightDiv.style.cssText = "margin: 5px 0 0 0";
+          cardContentFooterRightDiv.innerHTML=`${millesime.Type ? 'Vin ' + millesime.Type : ''} ${millesime.Contenant ? (' - ' + millesime.Contenant) : ''}`;
+
+          const cardFooterDiv = document.createElement('div');
+          cardFooterDiv.style.cssText = "display: flex; flex-direction: row; justify-content: space-between";
+          cardFooterDiv.append(cardContentFooterLeftDiv);
+          cardFooterDiv.append(cardContentFooterRightDiv);
+
+          /// CREATE CARD
+          const cardDiv = document.createElement('div');
+          cardDiv.style.cssText = "height: 50px; display: flex; flex-direction: column; background-color: rgba(240,240,240,0.2); border-radius: 5px; padding: 10px 20px; margin-top: 20px; border-bottom:2px solid black"
+          cardDiv.setAttribute("key", "liste-" + index);
+          cardDiv.append(cardHeaderDiv);
+          cardDiv.append(cardFooterDiv);
+
+          /// ADD TO MAIN DIV
+          globalDivPdf.append(cardDiv);
+
+          // GET CARD DIV HEIGHT
+          const pxToNb = (pxValue) => parseInt((pxValue).substring(0, (pxValue).indexOf('px')));
+          const DIV_HEIGHT = pxToNb(cardDiv.style.borderBottomWidth) + pxToNb(cardDiv.style.height) + pxToNb(cardDiv.style.padding)*2 + pxToNb(cardDiv.style.marginTop);
+
+          // END PAGE MANAGER
+          if (((compt*DIV_HEIGHT) >= (PDF_Height-DIV_HEIGHT)) || (millesimeSorted.length === index+1)) {
+            // SAUT DE PAGE
+            const division = document.createElement('div');
+            division.style.cssText = `height: ${PDF_Height-compt*DIV_HEIGHT}px`;
+            globalDivPdf.append(division);
+            compt=1;
+          }
+          else ++compt;
+        });
+      })
 
       // CREATE PDF HANDLE
       const pdf = new jsPDF({
@@ -300,6 +328,103 @@ function CarteDesVins(props) {
       // ADD AND SAVE MAIN DIV TO PDF SPLIT PAGE OPTION (PDF_Height)
       pdf.html(globalDivPdf, {pagesplit: true}).then(() => pdf.save("Catalogue de vins.pdf"));
     }
+    // if (listeDesMillesimes) {
+    //   // GET NAVIGATOR WIDTH
+    //   const divReport = document.querySelector('#report');
+    //   const HTML_Width  = divReport.clientWidth;
+
+    //   // SET PDF SIZE
+    //   const MARGIN = 40;
+    //   var PDF_Width = HTML_Width;
+    //   var PDF_Height = (PDF_Width*1.618);
+
+    //   // CREATE MAIN PDF DIV
+    //   const globalDivPdf = document.createElement('div');
+    //   globalDivPdf.style.cssText = "display: flex; flex-direction: column";
+    //   globalDivPdf.style.marginLeft = `${MARGIN }px`;
+    //   globalDivPdf.style.width = `${HTML_Width-MARGIN*2}px`;
+
+    //   // CREATE HEADER
+    //   const header = document.createElement('div');
+    //   header.style.cssText = "display: flex; flex-direction: column; text-align: center; justify-content: center; letter-spacing: 5px";
+    //   header.style.width = HTML_Width-MARGIN*2 + 'px';
+    //   header.style.height = PDF_Height + 'px';
+
+    //   const pdfTitre = document.createElement('h1');
+    //   pdfTitre.innerText = "VINANTIC";
+    //   header.append(pdfTitre);
+
+    //   const pdfSousTitre = document.createElement('h3');
+    //   pdfSousTitre.innerText = `Millésimes de 1940 à 2008`;
+    //   header.append(pdfSousTitre);
+
+    //   // ADD HEADER TO MAIN PDF DIV
+    //   globalDivPdf.append(header);
+
+    //   let compt = 1;
+    //   listeDesMillesimes.forEach((millesime, index) => {
+    //     /// CREATE CARD CONTENT HEADER
+    //     const cardContentHeaderLeftDiv = document.createElement('h3');
+    //     cardContentHeaderLeftDiv.style.cssText = "margin: 0";
+    //     cardContentHeaderLeftDiv.innerHTML=`${millesime.Année??'Aucune année'} ${millesime.Nom ? (' - ' + millesime.Nom) : ''} ${millesime.Appelation ? (' - ' + millesime.Appelation) : ''}`;
+
+    //     const cardContentHeaderRightDiv = document.createElement('h4');
+    //     cardContentHeaderRightDiv.style.cssText = "margin: 0";
+    //     cardContentHeaderRightDiv.innerHTML=`${millesime.PrixVente ? (millesime.PrixVente + ' €') : 'Prix indisponible'}`;
+
+    //     const cardHeaderDiv = document.createElement('div');
+    //     cardHeaderDiv.style.cssText = "display: flex; flex-direction: row; justify-content: space-between";
+    //     cardHeaderDiv.append(cardContentHeaderLeftDiv);
+    //     cardHeaderDiv.append(cardContentHeaderRightDiv);
+
+    //     /// CREATE CARD CONTENT FOOTER
+    //     const cardContentFooterLeftDiv = document.createElement('h5');
+    //     cardContentFooterLeftDiv.style.cssText = "margin: 5px 0 0 0";
+    //     cardContentFooterLeftDiv.innerHTML=`${millesime.Description?.Global??''} ${millesime.Description?.Details ? (' - ' + millesime.Description.Details) : ''}`;
+
+    //     const cardContentFooterRightDiv = document.createElement('h5');
+    //     cardContentFooterRightDiv.style.cssText = "margin: 5px 0 0 0";
+    //     cardContentFooterRightDiv.innerHTML=`${millesime.Type ? 'Vin ' + millesime.Type : ''} ${millesime.Contenant ? (' - ' + millesime.Contenant) : ''}`;
+
+    //     const cardFooterDiv = document.createElement('div');
+    //     cardFooterDiv.style.cssText = "display: flex; flex-direction: row; justify-content: space-between";
+    //     cardFooterDiv.append(cardContentFooterLeftDiv);
+    //     cardFooterDiv.append(cardContentFooterRightDiv);
+
+    //     /// CREATE CARD
+    //     const cardDiv = document.createElement('div');
+    //     cardDiv.style.cssText = "height: 50px; display: flex; flex-direction: column; background-color: rgba(240,240,240,0.2); border-radius: 5px; padding: 10px 20px; margin-top: 20px; border-bottom:2px solid black"
+    //     cardDiv.setAttribute("key", "liste-" + index);
+    //     cardDiv.append(cardHeaderDiv);
+    //     cardDiv.append(cardFooterDiv);
+
+    //     /// ADD TO MAIN DIV
+    //     globalDivPdf.append(cardDiv);
+
+    //     // GET CARD DIV HEIGHT
+    //     const pxToNb = (pxValue) => parseInt((pxValue).substring(0, (pxValue).indexOf('px')));
+    //     const DIV_HEIGHT = pxToNb(cardDiv.style.borderBottomWidth) + pxToNb(cardDiv.style.height) + pxToNb(cardDiv.style.padding)*2 + pxToNb(cardDiv.style.marginTop);
+
+    //     // END PAGE MANAGER
+    //     if ((compt*DIV_HEIGHT) >= (PDF_Height-DIV_HEIGHT)) {
+    //       const division = document.createElement('div');
+    //       division.style.cssText = `height: ${PDF_Height-compt*DIV_HEIGHT}px`;
+    //       globalDivPdf.append(division);
+    //       compt=1;
+    //     }
+    //     else ++compt;
+    //   });
+
+    //   // CREATE PDF HANDLE
+    //   const pdf = new jsPDF({
+    //     orientation: "portrait",
+    //     unit: "pt",
+    //     format: [PDF_Width , PDF_Height]
+    //   });
+
+    //   // ADD AND SAVE MAIN DIV TO PDF SPLIT PAGE OPTION (PDF_Height)
+    //   pdf.html(globalDivPdf, {pagesplit: true}).then(() => pdf.save("Catalogue de vins.pdf"));
+    // }
   };
 
   return (

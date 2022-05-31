@@ -247,9 +247,13 @@ function CarteDesVins(props) {
 
       // CREATE SORTED MILLESIMES YEARS IN PAGE TAB
       millesimes_Sorted.forEach((millesime, index) => {
-        console.info("flagLoop", flagLoop, Math.floor(millesime.Année/10));
-        if((flagLoop !== Math.floor(millesime.Année/10) || (millesimes_Sorted.length === index+1))) {
-          flagLoop = Math.floor(millesime.Année/10);
+        const annee = Math.floor(millesime.Année);
+        if((flagLoop !== annee || (millesimes_Sorted.length === index+1))) {
+          if (millesimes_Sorted.length === index+1) {
+            millesimesByTab.push(millesime);
+          }
+
+          flagLoop = annee;
           millesimesByTabFinal.push(millesimesByTab);
           millesimesByTab = [millesime];
         }
@@ -257,10 +261,28 @@ function CarteDesVins(props) {
           millesimesByTab.push(millesime);
         }
       });
+
+      // DELETE DOUBLON
+      millesimesByTabFinal.forEach((millesimes, index) => {
+        for(let ii=0; ii<millesimes.length; ++ii) {
+          const nomPrec =  millesimes[ii].Nom;
+          const anneePrec =  millesimes[ii].Année;
+
+          for(let jj=ii+1; jj<millesimes.length; ++jj){
+            const nomSuiv =  millesimes[jj].Nom;
+            const anneeSuiv =  millesimes[jj].Année;
+
+            if ((nomPrec === nomSuiv) && (anneePrec === anneeSuiv)) {
+              millesimesByTabFinal[index].splice(jj, 1);
+              jj = jj-1;
+            }
+          }
+        }
+      })
+
       console.info("liste", millesimesByTabFinal);
 
-      // TODO : DELETE DOUBLON
-
+      /// CREATE CARD CONTENT
       millesimesByTabFinal.forEach((millesimeSorted) => {
         let compt = 1;
         millesimeSorted.forEach((millesime, index) => {

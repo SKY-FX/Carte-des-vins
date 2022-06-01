@@ -2,25 +2,12 @@ import React, {useState} from 'react'
 import './carteDesVins.css'
 
 import readXlsxFile from 'read-excel-file/web-worker'
-import {Grid} from "@mui/material";
+import {Box, Grid, CardActionArea, Card, CardContent, Typography} from "@mui/material";
+import photoVin from '../../assets/Photos/ref_00001.jpg'
 
 
 export default function CarteDesVins() {
   const [listeDesMillesimes, setListeDesMillesimes] =  useState([]);
-
-  // useEffect(()=> {
-  //   const input = document.getElementById('input');
-  //   input.addEventListener('change', () => { 
-  //     readXlsxFile(input.files[0]).then((rows) => { 
-  //       // `rows` is an array of rows    // each row being an array of cells. 
-  //       console.info("EFFECT", rows);
-  //     })}
-  //   );
-
-  //   input.onchange();
-
-  //   console.info("EFFECT", input);
-  // }, []);
 
   const listeDesVins = (lignes) => {
     lignes.splice(0, 2);
@@ -82,22 +69,32 @@ export default function CarteDesVins() {
 
 
   return (
-    <Grid container rowSpacing="1vw" columnSpacing="1vw">
+    <Grid container spacing='1vw' sx={{padding:'1vw'}}>
       {listeDesMillesimes<=0 && <input type="file" id="input" style={{margin:'20px auto'}} onChange={onChangeFile}/>}
       {listeDesMillesimes.map((millesime, index) => {
         return (
-          <Grid item xs={4}>
-            <div key={"liste-" + index} className="carte-des-vins">
-              <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-                <h3 style={{margin:'0'}}>{millesime.Année} {millesime.Nom ? (' - ' + millesime.Nom) : ''} {millesime.Appelation ? (' - ' + millesime.Appelation) : ''}</h3>
-                <h4 style={{margin:'0'}}>{millesime.PrixVente ? (millesime.PrixVente + ' €') : 'Prix indisponible'}</h4>
-              </div>
+          <Grid key={"liste-" + index} item xs={12} sm={4} md={3}>
+            <Card sx={{height:'100%', textAlign: 'center'}}>
+              <CardActionArea>
+                <CardContent>
+                  <img src={photoVin} alt={photoVin} style={{width:"50px"}}/>
+                </CardContent>
 
-              <div style={{display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
-                <h5 style={{margin:'5px 0 0 0'}}>{millesime.Description?.Global} {millesime.Description?.Details ? (' - ' + millesime.Description.Details) : ''}</h5>
-                <h5 style={{margin:'5px 0 0 0'}}>{millesime.Type ? 'Vin ' + millesime.Type : ''} {millesime.Contenant ? (' - ' + millesime.Contenant) : ''}</h5>
-              </div>
-            </div>
+                <CardContent>
+                  <Typography color="black" sx={{fontWeight: "bold"}} variant="body2">
+                    {millesime.Nom}
+                    <br/>{millesime.Appelation}
+                    <br/>{millesime.Année}
+                  </Typography>
+                  <Typography color="black" sx={{fontWeight: "regular"}} variant="body2">
+                    <br/>{millesime.Type ? 'Vin ' + millesime.Type : ''} {millesime.Contenant ? (' - ' + millesime.Contenant) : ''}
+                    <br/>{millesime.Description?.Global} {millesime.Description?.Details ? (' - ' + millesime.Description.Details) : ''}
+                    <br/>
+                    <br/>{millesime.PrixVente ? (millesime.PrixVente + ' €') : 'Prix indisponible'}
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
           </Grid>
         )
       })}

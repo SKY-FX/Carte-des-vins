@@ -8,17 +8,14 @@ import CarteDesVins from './FO/carteDesVins/carteDesVins'
 
 
 function App() {
-  console.info("PRIVATE_URL", PRIVATE_URL.BO)
   return (
-    <Box>
-      <BrowserRouter>
-          <Routes>
-            <Route path={PRIVATE_URL.BO} element={<BackOffice/>}/>
-            <Route path={PUBLIC_URL.CARTE_DES_VINS} element={<CarteDesVins/>}/>
-            <Route path="*" element={<Error404/>}/>
-          </Routes>
-      </BrowserRouter>
-    </Box>
+    <BrowserRouter>
+        <Routes>
+          <Route path={PRIVATE_URL.BO} element={<BackOffice/>}/>
+          <Route path={PUBLIC_URL.CARTE_DES_VINS} element={<CarteDesVins/>}/>
+          <Route path="*" element={<Error404/>}/>
+        </Routes>
+    </BrowserRouter>
   );
 }
 

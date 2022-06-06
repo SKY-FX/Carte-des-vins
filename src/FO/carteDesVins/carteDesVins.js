@@ -11,7 +11,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import CircularProgress from '@mui/material/CircularProgress';
 
 
-const NB_MILLS_PER_PAGE = 12;
+const NB_MILLS_PER_PAGE = 96;
 
 
 export default function CarteDesVins() {
@@ -218,11 +218,12 @@ export default function CarteDesVins() {
                               listeDesMillesimes.slice((page-1)*NB_MILLS_PER_PAGE, listeDesMillesimes.length);
     setMillesimesPagination(pageMillesimes)
     setPage(page);
+    window.scrollTo(0, 0);
   }
 
 
   return (
-    <Box>
+    <Box /*sx={{backgroundColor: 'rgba(100,100,100,1)'}}*/>
       <Typography
         className={startEffect ? 'titre-effect' : 'titre'}
         sx={{textAlign:'center', padding:'20px', fontWeight: "regular", fontFamily: 'Tangerine'}}
@@ -231,15 +232,15 @@ export default function CarteDesVins() {
         Vinantic
       </Typography>
 
-      <Box sx={{display:'flex', m:'auto 1vw', py:2, px:0}}>
+      <Box sx={{display:'flex', m:'auto 1vw', py:2, px:0, alignItems:'center'}}>
         <Box sx={{flex:1, display:'flex', justifyContent:"left", borderRadius:'5px', backgroundColor:'white'}}>
           {/* <input name="missingYears" type="button" id="input" onClick={onMissingYears} value="MILLESIMES MANQUANTS" style={{marginRight:"10px", padding:'10px'}}/> */}
-          <LoadingButton name="yearsFilter" color="warning" size="medium" loading={false} variant={isAnnee ? "contained" : "outlined"} onClick={onChangeFilter}>TRI PAR ANNEE</LoadingButton>
-          <LoadingButton name="pricesFilter" color='warning' size="medium" loading={false} variant={isPrix ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR PRIX</LoadingButton>
-          <LoadingButton name="namesFilter" color='warning' size="medium" loading={false} variant={isNom ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR NOM</LoadingButton>
+          <LoadingButton name="yearsFilter" color="warning" size="large" loading={false} variant={isAnnee ? "contained" : "outlined"} onClick={onChangeFilter}>TRI PAR ANNEE</LoadingButton>
+          <LoadingButton name="pricesFilter" color='warning' size="large" loading={false} variant={isPrix ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR PRIX</LoadingButton>
+          <LoadingButton name="namesFilter" color='warning' size="large" loading={false} variant={isNom ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR NOM</LoadingButton>
         </Box>
         <Box sx={{marginLeft:'10px', textAlign:'center'}}>
-          <FormControl sx={{width: '250px' }} variant="outlined" color="warning">
+          <FormControl sx={{width: '250px'}} variant="outlined" color="warning">
             <InputLabel htmlFor="outlined-adornment-password">Rechercher...</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
@@ -262,7 +263,7 @@ export default function CarteDesVins() {
         </Box>
       </Box>
 
-      <Alert severity={nbBouteilles ? "info" : "warning"} sx={{display:'flex', alignItems:'center', m:'auto 1vw'}}>
+      <Alert severity={nbBouteilles ? "info" : "warning"} sx={{display:'flex', alignItems:'center', mx:'1vw'}}>
         {
           nbBouteilles ?
             <>
@@ -277,6 +278,8 @@ export default function CarteDesVins() {
                   :
                   <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}>{nbBouteilles} bouteilles sont disponibles.</Typography>
               }
+              <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}> Vous êtes sur la page {page} du catalogue.</Typography>
+
             </>
             :
             textSearch ?
@@ -285,6 +288,10 @@ export default function CarteDesVins() {
               <Typography variant="h6" sx={{fontFamily: 'Quicksand'}}>Les données sont indisponibles</Typography>
         }
       </Alert>
+
+      <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>
+        <Pagination count={Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)} page={page} shape="rounded" onChange={HandlePagination}/>
+      </Stack>
 
       {
         loader ?
@@ -306,9 +313,9 @@ export default function CarteDesVins() {
                     )})}
                   </Grid>
 
-                  <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>
+                  {page*NB_MILLS_PER_PAGE <= listeDesMillesimes.length && <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>
                     <Pagination count={Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)} page={page} shape="rounded" onChange={HandlePagination}/>
-                  </Stack>
+                  </Stack>}
                 </>
                 :
                 <></>

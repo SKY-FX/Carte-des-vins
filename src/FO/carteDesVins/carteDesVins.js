@@ -183,9 +183,6 @@ export default function CarteDesVins() {
         setPage(1);
         setNbBouteilles(0);
         setMontantTotal(0);
-        setIsAnnee(false);
-        setIsPrix(false);
-        setIsNom(false);
       };
     }
     else if (millesimesSorted && textToSearch === '') {
@@ -203,6 +200,9 @@ export default function CarteDesVins() {
     };
 
     setTimeout(() => {setLoader(false)}, 100);
+    setIsAnnee(false);
+    setIsPrix(false);
+    setIsNom(false);
   };
 
   useEffect(() => {
@@ -223,7 +223,7 @@ export default function CarteDesVins() {
 
 
   return (
-    <Box /*sx={{backgroundColor: 'rgba(100,100,100,1)'}}*/>
+    <Box sx={{mb:'1vw'}}>
       <Typography
         className={startEffect ? 'titre-effect' : 'titre'}
         sx={{textAlign:'center', padding:'20px', fontWeight: "regular", fontFamily: 'Tangerine'}}
@@ -263,7 +263,7 @@ export default function CarteDesVins() {
         </Box>
       </Box>
 
-      <Alert severity={nbBouteilles ? "info" : "warning"} sx={{display:'flex', alignItems:'center', mx:'1vw'}}>
+      <Alert severity={nbBouteilles ? "info" : "warning"} sx={{display:'flex', alignItems:'center', mx:'1vw', mb:'10px'}}>
         {
           nbBouteilles ?
             <>
@@ -278,7 +278,12 @@ export default function CarteDesVins() {
                   :
                   <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}>{nbBouteilles} bouteilles sont disponibles.</Typography>
               }
-              <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}> Vous êtes sur la page {page} du catalogue.</Typography>
+              <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}>
+                {
+                  (Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)>1) &&
+                    `Vous êtes sur la page ${page} du catalogue`
+                }
+              </Typography>
 
             </>
             :
@@ -289,9 +294,11 @@ export default function CarteDesVins() {
         }
       </Alert>
 
-      <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>
-        <Pagination count={Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)} page={page} shape="rounded" onChange={HandlePagination}/>
-      </Stack>
+      { Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)>1 &&
+        <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>
+          <Pagination count={Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)} page={page} shape="rounded" onChange={HandlePagination}/>
+        </Stack>
+      }
 
       {
         loader ?

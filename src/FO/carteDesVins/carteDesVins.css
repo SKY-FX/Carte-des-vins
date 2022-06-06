@@ -14,7 +14,7 @@
 }
 
 .card-image-hover {
-    opacity:0.2;
+    opacity:0.1;
     transition: all ease-in-out .5s;
 }
 

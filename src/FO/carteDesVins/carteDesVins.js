@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import './carteDesVins.css'
 
 import readXlsxFile from 'read-excel-file/web-worker'
-import {Box, Grid, Typography, FormControl, InputLabel, OutlinedInput, InputAdornment, Alert} from "@mui/material";
+import {Box, Grid, Typography, FormControl, InputLabel, OutlinedInput, InputAdornment, Pagination, Stack, Alert} from "@mui/material";
 import LoadingButton from '@mui/lab/LoadingButton';
 import photoVin from '../../assets/Photos/ref_00001.jpg'
 import GenricCard from './genricCard';
@@ -11,13 +11,13 @@ import SearchIcon from '@mui/icons-material/Search';
 import CircularProgress from '@mui/material/CircularProgress';
 
 
-
-
+const NB_MILLS_PER_PAGE = 12;
 
 
 export default function CarteDesVins() {
   const [listeDesMillesimes, setListeDesMillesimes] =  useState([]);
   const [listeDesMillesimesFiltres, setListeDesMillesimesFiltres] =  useState([]);
+  const [millesimesPagination, setMillesimesPagination] =  useState([]);
   const [nbBouteilles, setNbBouteilles] =  useState(0);
   const [montantTotal, setMontantTotal] =  useState(0);
   const [loader, setLoader] =  useState(false);
@@ -26,7 +26,7 @@ export default function CarteDesVins() {
   const [isPrix, setIsPrix] =  useState(false);
   const [isNom, setIsNom] =  useState(false);
   const [textSearch, setTextSearch] =  useState('');
-
+  const [page, setPage] = React.useState(1);
 
 
   const [startEffect, setStartEffect] =  useState(false);
@@ -74,20 +74,24 @@ export default function CarteDesVins() {
 
       setListeDesMillesimes(maListe);
       setListeDesMillesimesFiltres(maListe);
+      setMillesimesPagination(maListe.slice(0,NB_MILLS_PER_PAGE));
       setMontantTotal(local_montantTotal);
       setNbBouteilles(maListe.length);
+      setPage(1);
       setError('');
       setLoader(false);
     })
     .catch(error => {
       setListeDesMillesimes([]);
       setListeDesMillesimesFiltres([]);
+      setMillesimesPagination([]);
       setNbBouteilles(0);
+      setPage(1);
       setMontantTotal(0);
       setError(error);
       setLoader(false);
     });
-  }
+  };
 
   const onChangeFilter = (event) => {
     setLoader(true);
@@ -128,6 +132,8 @@ export default function CarteDesVins() {
     }
 
     setListeDesMillesimes(millesimesSorted);
+    setMillesimesPagination(millesimesSorted.slice(0, NB_MILLS_PER_PAGE));
+    setPage(1);
     setNbBouteilles(millesimesSorted.length);
     setTimeout(() => {setLoader(false)}, 100)
     return millesimesSorted;
@@ -135,7 +141,6 @@ export default function CarteDesVins() {
 
   const onTextSearch = (textToSearch) => {
     setLoader(true);
-    setTextSearch(textToSearch);
 
     let millesimesSorted = listeDesMillesimesFiltres.slice(0, listeDesMillesimesFiltres.length);
     if (millesimesSorted && textToSearch !== '') {
@@ -167,11 +172,15 @@ export default function CarteDesVins() {
           return local_montantTotal;
         })
         setListeDesMillesimes(result);
+        setMillesimesPagination(result.slice(0, NB_MILLS_PER_PAGE));
+        setPage(1);
         setMontantTotal(local_montantTotal);
         setNbBouteilles(result.length);
       }
       else {
         setListeDesMillesimes([{Année : "Pas de résultat pour cette recherche : " + textToSearch}]);
+        setMillesimesPagination([])
+        setPage(1);
         setNbBouteilles(0);
         setMontantTotal(0);
         setIsAnnee(false);
@@ -187,19 +196,29 @@ export default function CarteDesVins() {
         }
       );
       setListeDesMillesimes(millesimesSorted);
+      setMillesimesPagination(millesimesSorted.slice(0, NB_MILLS_PER_PAGE));
+      setPage(1);
       setMontantTotal(local_montantTotal);
       setNbBouteilles(millesimesSorted.length);
     };
 
     setTimeout(() => {setLoader(false)}, 100);
-  }
+  };
 
   useEffect(() => {
-    console.info("EFFECT", isAnnee, isPrix, isNom)
     setTimeout(() => {
       setStartEffect(true);
     }, 1000)
-  }, [])
+  }, []);
+
+  const HandlePagination = (event, page) => {
+    const pageMillesimes = ( page*NB_MILLS_PER_PAGE <= listeDesMillesimes.length ) ?
+                              listeDesMillesimes.slice((page-1)*NB_MILLS_PER_PAGE, page*NB_MILLS_PER_PAGE)
+                              :
+                              listeDesMillesimes.slice((page-1)*NB_MILLS_PER_PAGE, listeDesMillesimes.length);
+    setMillesimesPagination(pageMillesimes)
+    setPage(page);
+  }
 
 
   return (
@@ -212,17 +231,16 @@ export default function CarteDesVins() {
         Vinantic
       </Typography>
 
-      <Box sx={{display:'flex', margin:'auto 1vw', py:2, px:0}}>
+      <Box sx={{display:'flex', m:'auto 1vw', py:2, px:0}}>
         <Box sx={{flex:1, display:'flex', justifyContent:"left", borderRadius:'5px', backgroundColor:'white'}}>
           {/* <input name="missingYears" type="button" id="input" onClick={onMissingYears} value="MILLESIMES MANQUANTS" style={{marginRight:"10px", padding:'10px'}}/> */}
           <LoadingButton name="yearsFilter" color="warning" size="medium" loading={false} variant={isAnnee ? "contained" : "outlined"} onClick={onChangeFilter}>TRI PAR ANNEE</LoadingButton>
           <LoadingButton name="pricesFilter" color='warning' size="medium" loading={false} variant={isPrix ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR PRIX</LoadingButton>
           <LoadingButton name="namesFilter" color='warning' size="medium" loading={false} variant={isNom ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR NOM</LoadingButton>
-          {loader && <CircularProgress sx={{ml:'20px'}}/>}
         </Box>
         <Box sx={{marginLeft:'10px', textAlign:'center'}}>
           <FormControl sx={{width: '250px' }} variant="outlined" color="warning">
-            <InputLabel htmlFor="outlined-adornment-password">Rechercher</InputLabel>
+            <InputLabel htmlFor="outlined-adornment-password">Rechercher...</InputLabel>
             <OutlinedInput
               id="outlined-adornment-password"
               type='text'
@@ -238,49 +256,62 @@ export default function CarteDesVins() {
                   </IconButton>
                 </InputAdornment>
               }
-              label="Rechercher"
+              label="Rechercher..."
             />
           </FormControl>
         </Box>
       </Box>
 
-      <Alert severity={nbBouteilles ? "info" : "warning"} sx={{mx:'1vw', my:0}}>
+      <Alert severity={nbBouteilles ? "info" : "warning"} sx={{display:'flex', alignItems:'center', m:'auto 1vw'}}>
         {
           nbBouteilles ?
             <>
               { isAnnee ||isPrix || isNom ?
-                <>La liste ci-dessous a été triées par "{isAnnee ? "Année" : isPrix ? "Prix" : "Nom"}".</>
+                <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}>La liste ci-dessous a été triées par "{isAnnee ? "Année" : isPrix ? "Prix" : "Nom"}". </Typography>
                 :
-                <>La liste ci-dessous n'a pas été triées.</>
+                <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}>La liste ci-dessous n'a pas été triées. </Typography>
               }
               {
                 textSearch !== '' ?
-                  <> Votre recherche "{textSearch}" contient {nbBouteilles} bouteilles.</>
+                  <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}> Votre recherche "{textSearch}" contient {nbBouteilles} bouteilles.</Typography>
                   :
-                  <><br/>{nbBouteilles} bouteilles sont disponibles.</>
+                  <Typography display="inline" variant="h6" sx={{fontFamily: 'Quicksand'}}>{nbBouteilles} bouteilles sont disponibles.</Typography>
               }
             </>
             :
-            <>Pas de résultat pour cette recherche : {textSearch}</>
+            textSearch ?
+              <Typography variant="h6" sx={{fontFamily: 'Quicksand'}}>Pas de résultat pour cette recherche : {textSearch}</Typography>
+              :
+              <Typography variant="h6" sx={{fontFamily: 'Quicksand'}}>Les données sont indisponibles</Typography>
         }
       </Alert>
 
       {
-        listeDesMillesimes<=0 ?
-          <input type="file" id="input" style={{margin:'20px auto'}} onChange={onChangeFile}/>
-          :
-          nbBouteilles ?
-            <Grid container sx={{backgroundColor: 'rgba(240, 240, 240, .5)'}}>
-              {listeDesMillesimes.map((millesime, index) => {
-                return (
-                  <GenricCard
-                    key={"liste-" + index}
-                    millesime={millesime}
-                    photoVin={photoVin}
-                  />
-                )})}
-            </Grid>
-            :<></>
+        loader ?
+          <CircularProgress color="warning" size="100px" sx={{m:'auto 1vw'}}/>
+            :
+            listeDesMillesimes<=0 ?
+              <input type="file" id="input" style={{margin:'auto 1vw'}} onChange={onChangeFile}/>
+              :
+              nbBouteilles ?
+              <>
+                  <Grid container sx={{backgroundColor: 'rgba(240, 240, 240, .5)'}}>
+                    {millesimesPagination.map((millesime, index) => {
+                      return (
+                        <GenricCard
+                          key={"liste-" + index}
+                          millesime={millesime}
+                          photoVin={photoVin}
+                        />
+                    )})}
+                  </Grid>
+
+                  <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>
+                    <Pagination count={Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)} page={page} shape="rounded" onChange={HandlePagination}/>
+                  </Stack>
+                </>
+                :
+                <></>
         }
     </Box>
   )

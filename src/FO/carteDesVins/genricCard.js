@@ -16,7 +16,7 @@ export default function GenricCard(props) {
               </a>
               <br/><br/>
               <Typography sx={{fontWeight: "bold", fontFamily: 'Quicksand'}} variant="body1">
-                {millesime["Château"]??''}{millesime["Année"] ? ' - ' + millesime["Année"] : ''}
+                {millesime["Château"]??''} {(millesime["Année"]>0 && millesime["Année"]<99999) ? (' - ' + millesime["Année"]) : ''}
               </Typography>
             </CardContent>
 
@@ -24,7 +24,7 @@ export default function GenricCard(props) {
                 <Typography sx={{fontWeight: "bold", fontFamily: 'Quicksand'}} variant="body2">
                   {millesime["Château"]??''}{!(millesime["Château"])?'':<br/>}
                   {millesime["Ville"]??''}{!(millesime["Ville"])?'':<br/>}
-                  {millesime["Année"]>0 ? millesime["Année"] : 'Année non indiquée'}
+                  {(millesime["Année"]>0 && millesime["Année"]<99999) ? millesime["Année"] : 'Année non indiquée'}
                 </Typography>
                 <Typography sx={{fontWeight: "regular", fontFamily: 'Quicksand'}} variant="body2">
                   <br/>{millesime["Type"] ? 'Vin ' + millesime["Type"] : ''} {millesime["Contenant"] ? (' - ' + millesime["Contenant"]) : ''}

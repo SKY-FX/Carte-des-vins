@@ -50,8 +50,6 @@ export default function CarteDesVins() {
         return local_montantTotal;
       });
 
-      console.info("EFFECT", sheetToJson)
-
       setListeDesMillesimes(sheetToJson);
       setListeDesMillesimesFiltres(sheetToJson);
       setMillesimesPagination(sheetToJson.slice(0,NB_MILLS_PER_PAGE));
@@ -61,10 +59,7 @@ export default function CarteDesVins() {
       setError('');
       setLoader(false);
     })
-    .catch(error => {
-      setError(error);
-      console.info("ERROR", error);
-    });
+    .catch(error => setError(error));
 
   }, []);
 
@@ -94,22 +89,20 @@ export default function CarteDesVins() {
     }
 
     for (let jj=0; jj<(millesimesSorted.length-1); ++jj) {
-      let [lignePredente] = millesimesSorted.slice(jj, jj+1);
+      let [lignePredente] = JSON.parse(JSON.stringify(millesimesSorted.slice(jj, jj+1)));
+      if (typeof lignePredente[element] === 'string') lignePredente[element] = lignePredente[element].trim()??'zzzzz';
+      else lignePredente[element] = lignePredente[element]??99999;
+
       for (let ii=(jj+1); ii<(millesimesSorted.length); ++ii) {
-        let [ligneCourante] = millesimesSorted.slice(ii, ii+1);
-
-        if (typeof lignePredente[element] === 'string') lignePredente[element] = lignePredente[element].trim()??'';
-        else lignePredente[element] = lignePredente[element]??0;
-
-        if (typeof ligneCourante[element] === 'string') ligneCourante[element] = ligneCourante[element].trim()??'';
-        else ligneCourante[element] = ligneCourante[element]??0;
+        let [ligneCourante] = JSON.parse(JSON.stringify(millesimesSorted.slice(ii, ii+1)));
+        if (typeof ligneCourante[element] === 'string') ligneCourante[element] = ligneCourante[element].trim()??'zzzzz'
+        else ligneCourante[element] = ligneCourante[element]??99999;
 
         if (lignePredente[element] > ligneCourante[element]) {
-          millesimesSorted.splice(jj, 1, ligneCourante);
-          millesimesSorted.splice(ii, 1, lignePredente);
-          [lignePredente] = millesimesSorted.slice(jj, jj+1);
+          millesimesSorted.splice(jj, 1, JSON.parse(JSON.stringify(ligneCourante)));
+          millesimesSorted.splice(ii, 1, JSON.parse(JSON.stringify(lignePredente)));
+          [lignePredente] = JSON.parse(JSON.stringify(millesimesSorted.slice(jj, jj+1)));
         }
-
       }
     }
     setListeDesMillesimes(millesimesSorted);
@@ -234,7 +227,6 @@ export default function CarteDesVins() {
       // ADD HEADER TO MAIN PDF DIV
       globalDivPdf.append(header);
 
-
       // MILLESIMES SORTED BY YEAR
       const millesimes_Sorted = onChangeFilter({target:{name:"yearsFilter"}});
 
@@ -284,7 +276,7 @@ export default function CarteDesVins() {
           /// CREATE CARD CONTENT HEADER
           const cardContentHeaderLeftDiv = document.createElement('h3');
           cardContentHeaderLeftDiv.style.cssText = "margin: 0";
-          cardContentHeaderLeftDiv.innerHTML=`${(millesime.Année && millesime.Année>0)? millesime.Année : 'Aucune année'} ${millesime["Château"] ? (' - ' + millesime["Château"]) : ''} ${millesime["Ville"] ? (' - ' + millesime["Ville"]) : ''}`;
+          cardContentHeaderLeftDiv.innerHTML=`${(millesime.Année && millesime.Année>0 && millesime.Année<99999)? millesime.Année : 'Année non indiquée'} ${millesime["Château"] ? (' - ' + millesime["Château"]) : ''} ${millesime["Ville"] ? (' - ' + millesime["Ville"]) : ''}`;
 
           const cardContentHeaderRightDiv = document.createElement('h4');
           cardContentHeaderRightDiv.style.cssText = "margin: 0";
@@ -339,7 +331,7 @@ export default function CarteDesVins() {
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "pt",
-        format: [PDF_Width , PDF_Height]
+        format: [PDF_Width, PDF_Height]
       });
 
       // ADD AND SAVE MAIN DIV TO PDF SPLIT PAGE OPTION (PDF_Height)

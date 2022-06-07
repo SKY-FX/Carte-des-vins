@@ -22,22 +22,17 @@ export default function GenricCard(props) {
 
             <CardContent className={isMouse ? "card-content-hover" : "card-content"} sx={{position:'absolute', padding:'20% 10%', bottom:0, top:0, left:0, right:0, backgroundColor:'rgba(237, 108, 2, 0.2)'}}>
                 <Typography sx={{fontWeight: "bold", fontFamily: 'Quicksand'}} variant="body2">
-                {millesime["Château"]??''}{!(millesime["Château"])?'':<br/>}
-                {millesime["Ville"]??''}{!(millesime["Ville"])?'':<br/>}
-                {millesime["Année"]>0 ? millesime["Année"] : 'Année non indiquée'}
+                  {millesime["Château"]??''}{!(millesime["Château"])?'':<br/>}
+                  {millesime["Ville"]??''}{!(millesime["Ville"])?'':<br/>}
+                  {millesime["Année"]>0 ? millesime["Année"] : 'Année non indiquée'}
                 </Typography>
                 <Typography sx={{fontWeight: "regular", fontFamily: 'Quicksand'}} variant="body2">
-                <br/>{millesime["Type"] ? 'Vin ' + millesime["Type"] : ''} {millesime["Contenant"] ? (' - ' + millesime["Contenant"]) : ''}
-                {/* <br/>{millesime.Description && (millesime.Description["Qualité"]??'')} {(millesime.Description && millesime.Description["Remarques"]) ? (' - ' + millesime.Description["Remarques"]) : ''} */}
-                {
-                  millesime.Description ?
-                    millesime.Description["Qualité"]??''
-                    :
-                    'COUCOU'
-                }
-                <br/>
-                <br/>{millesime["Prix sur le marché"] ? (millesime["Prix sur le marché"] + ' €') : 'Prix indisponible'}
-                <br/>{millesime["Référence"]??''}
+                  <br/>{millesime["Type"] ? 'Vin ' + millesime["Type"] : ''} {millesime["Contenant"] ? (' - ' + millesime["Contenant"]) : ''}
+                  <br/>{millesime["Qualité"]??''} {millesime["Remarques"] ? (' - ' + millesime["Remarques"]) : ''}
+                  <br/>
+                  <br/>{millesime["Prix sur le marché"] ? (millesime["Prix sur le marché"] + ' €') : 'Prix indisponible'}
+                  <br/><br/><br/><br/>
+                  <br/>{millesime["Référence"]??''}
                 </Typography>
             </CardContent>
           </CardActionArea>

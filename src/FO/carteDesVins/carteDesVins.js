@@ -6,7 +6,14 @@ import {jsPDF} from "jspdf";
 
 import {Box, Grid, Link, Typography, FormControl, InputLabel, OutlinedInput, InputAdornment, Pagination, Stack, Alert} from "@mui/material";
 import LoadingButton from '@mui/lab/LoadingButton';
-import photoVin from '../../assets/Photos/ref_00001.jpg'
+import photoVin_00001 from '../../assets/Photos/ref_00001.jpg'
+import photoVin_00002 from '../../assets/Photos/ref_00002.jpg'
+import photoVin_00003 from '../../assets/Photos/ref_00003.jpg'
+import photoVin_00004 from '../../assets/Photos/ref_00004.jpg'
+import photoVin_00005 from '../../assets/Photos/ref_00005.jpg'
+import photoVin_00006 from '../../assets/Photos/ref_00006.jpg'
+import photoVin_00007 from '../../assets/Photos/ref_00007.jpg'
+import photoVin_00008 from '../../assets/Photos/ref_00008.jpg'
 import GenricCard from './genricCard';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
@@ -14,6 +21,16 @@ import CircularProgress from '@mui/material/CircularProgress';
 
 const INPUT_XLS_PATH = 'ListeMaCave.xlsx';
 const NB_MILLS_PER_PAGE = 96;
+const imagesVins = [
+  photoVin_00001,
+  photoVin_00002,
+  photoVin_00003,
+  photoVin_00004,
+  photoVin_00005,
+  photoVin_00006,
+  photoVin_00007,
+  photoVin_00008
+]
 
 
 export default function CarteDesVins() {
@@ -196,13 +213,14 @@ export default function CarteDesVins() {
       setLoader(true);
 
       // GET NAVIGATOR WIDTH
-      const divReport = document.querySelector('#report');
-      const HTML_Width  = divReport.clientWidth;
+      // const divReport = document.querySelector('#report');
+      const HTML_Width  = 1000;
+      // const HTML_Width  = divReport.clientWidth;
 
       // SET PDF SIZE
       const MARGIN = 40;
       var PDF_Width = HTML_Width;
-      var PDF_Height = (PDF_Width*1.618);
+      var PDF_Height = (PDF_Width*1.414);
 
       // CREATE MAIN PDF DIV
       const globalDivPdf = document.createElement('div');
@@ -336,7 +354,7 @@ export default function CarteDesVins() {
 
       // ADD AND SAVE MAIN DIV TO PDF SPLIT PAGE OPTION (PDF_Height)
       pdf.html(globalDivPdf, {pagesplit: true}).then(() => {
-        pdf.save("Catalogue de vins.pdf");
+        pdf.save("Catalogue de vins - Vinantic.pdf");
         setLoader(false);
       });
     }
@@ -445,7 +463,7 @@ export default function CarteDesVins() {
                     <GenricCard
                       key={"liste-" + index}
                       millesime={millesime}
-                      photoVin={photoVin}
+                      photoVin={imagesVins[index]}
                     />
                 )})}
               </Grid>

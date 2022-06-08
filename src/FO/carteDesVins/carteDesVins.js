@@ -4,12 +4,9 @@ import './carteDesVins.css'
 import XLSX from "xlsx/dist/xlsx.full.min";
 import {jsPDF} from "jspdf";
 
-import {Box, Grid, Link, Typography, FormControl, InputLabel, OutlinedInput, InputAdornment, Pagination, Stack, Alert} from "@mui/material";
+import {Box, Grid, Link, Typography, Tooltip, Fade, Button, FormControl, InputLabel, OutlinedInput, InputAdornment, Pagination, Stack, Alert} from "@mui/material";
 import LoadingButton from '@mui/lab/LoadingButton';
-import photoVin_00001 from '../../assets/Photos/ref_00001.jpg'
-import photoVin_00002 from '../../assets/Photos/ref_00002.jpg'
-import photoVin_00003 from '../../assets/Photos/ref_00003.jpg'
-import photoVin_00004 from '../../assets/Photos/ref_00004.jpg'
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import photoVin_00005 from '../../assets/Photos/ref_00005.jpg'
 import photoVin_00006 from '../../assets/Photos/ref_00006.jpg'
 import photoVin_00007 from '../../assets/Photos/ref_00007.jpg'
@@ -22,10 +19,34 @@ import CircularProgress from '@mui/material/CircularProgress';
 const INPUT_XLS_PATH = 'ListeMaCave.xlsx';
 const NB_MILLS_PER_PAGE = 96;
 const imagesVins = [
-  photoVin_00001,
-  photoVin_00002,
-  photoVin_00003,
-  photoVin_00004,
+  photoVin_00005,
+  photoVin_00006,
+  photoVin_00007,
+  photoVin_00008,
+  photoVin_00005,
+  photoVin_00006,
+  photoVin_00007,
+  photoVin_00008,
+  photoVin_00005,
+  photoVin_00006,
+  photoVin_00007,
+  photoVin_00008,
+  photoVin_00005,
+  photoVin_00006,
+  photoVin_00007,
+  photoVin_00008,
+  photoVin_00005,
+  photoVin_00006,
+  photoVin_00007,
+  photoVin_00008,
+  photoVin_00005,
+  photoVin_00006,
+  photoVin_00007,
+  photoVin_00008,
+  photoVin_00005,
+  photoVin_00006,
+  photoVin_00007,
+  photoVin_00008,
   photoVin_00005,
   photoVin_00006,
   photoVin_00007,
@@ -34,6 +55,7 @@ const imagesVins = [
 
 
 export default function CarteDesVins() {
+  const [listeDesMillesimesManquants, setListeDesMillesimesManquants] =  useState([]);
   const [listeDesMillesimes, setListeDesMillesimes] =  useState([]);
   const [listeDesMillesimesFiltres, setListeDesMillesimesFiltres] =  useState([]);
   const [millesimesPagination, setMillesimesPagination] =  useState([]);
@@ -360,6 +382,36 @@ export default function CarteDesVins() {
     }
   };
 
+  const onMissingYears = () => {
+      let listeMillesimes = listeDesMillesimes.slice(0, listeDesMillesimes.length);
+
+      // YEAR FILTER
+      for (let jj=0; jj<(listeMillesimes.length-1); ++jj) {
+        let [lignePredente] = listeMillesimes.slice(jj, jj+1);
+        for (let ii=(jj+1); ii<(listeMillesimes.length); ++ii) {
+          const [ligneCourante] = listeMillesimes.slice(ii, ii+1);
+          if (lignePredente['Année'] > ligneCourante['Année']) {
+            listeMillesimes.splice(jj, 1, ligneCourante);
+            listeMillesimes.splice(ii, 1, lignePredente);
+            [lignePredente] = listeMillesimes.slice(jj, jj+1);
+          }
+        }
+      }
+
+      let missingDateTab = [];
+      for (let ii=0; ii<(listeMillesimes.length-1); ++ii){
+        let [millesime_prec] = listeMillesimes.slice(ii, ii+1);
+        let [millesime_suiv] = listeMillesimes.slice(ii+1, ii+2);
+
+        if (millesime_prec["Année"] && (millesime_suiv["Année"]-millesime_prec["Année"]>1)) {
+          for (let jj=0; jj<(millesime_suiv["Année"]-millesime_prec["Année"]-1); ++jj) {
+            missingDateTab.push(millesime_prec["Année"] + jj + 1);
+          }
+        }
+      }
+      setListeDesMillesimesManquants(missingDateTab);
+    };
+
 
   return (
     <Box sx={{mb:'1vw'}} id='report'>
@@ -376,6 +428,9 @@ export default function CarteDesVins() {
           <LoadingButton name="yearsFilter" color="warning" size="large" loading={false} variant={isAnnee ? "contained" : "outlined"} onClick={onChangeFilter}>TRI PAR ANNEE</LoadingButton>
           <LoadingButton name="pricesFilter" color='warning' size="large" loading={false} variant={isPrix ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR PRIX</LoadingButton>
           <LoadingButton name="namesFilter" color='warning' size="large" loading={false} variant={isNom ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR NOM</LoadingButton>
+          {/* <Tooltip sx={{ml:'10px'}} TransitionComponent={Fade} TransitionProps={{ timeout: 600 }} title="Visualiser les millésimes qui manquent au catalogue">
+            <Button>Millésimes manquants</Button>
+          </Tooltip> */}
         </Box>
         <Box sx={{marginLeft:'10px', textAlign:'center'}}>
           <FormControl sx={{width: '250px'}} variant="outlined" color="warning">
@@ -429,7 +484,8 @@ export default function CarteDesVins() {
               }
 
               <Typography variant="body1" sx={{fontFamily: 'Quicksand'}}>
-                <Link onClick={generatePDF} href="#">Télécharger le catalogue au format PDF</Link>
+                <Link sx={{cursor:'pointer'}} onClick={generatePDF}>Télécharger le catalogue au format PDF.</Link>
+                {textSearch && <><br/><span>Votre recherche actuelle "{textSearch}" sera pris en comte dans le fichier PDF.</span></>}
               </Typography>
 
             </>
@@ -442,8 +498,6 @@ export default function CarteDesVins() {
           <Typography variant="body1" sx={{fontFamily: 'Quicksand'}}>Une erreur est apparue</Typography>
         }
       </Alert>
-
-      {/* <input name="ExportPDF" type="button" id="input" onClick={generatePDF} value="EXPORTER LE CATALOGUE AU FORMAT PDF" style={{marginBottom:'10px', padding:'10px'}}/> */}
 
       { Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)>1 &&
         <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>

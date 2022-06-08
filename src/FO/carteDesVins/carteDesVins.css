@@ -9,11 +9,15 @@
 }
 
 .card-image {
-    opacity:1;
+    /* width: 100px; */
+    /* background-image: linear-gradient(to bottom, transparent, rgba(237, 108, 2, 0.1)); */
+    opacity: 1;
     transition: all ease-in-out .5s;
 }
 
 .card-image-hover {
+    /* width: 100px; */
+    /* background-image: linear-gradient(to bottom, rgba(237, 108, 2, 0.1), rgba(237, 108, 2, 0.1)); */
     opacity:0.05;
     transition: all ease-in-out .5s;
 }

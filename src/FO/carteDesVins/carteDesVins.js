@@ -7,10 +7,10 @@ import {jsPDF} from "jspdf";
 import {Box, Grid, Link, Typography, Tooltip, Fade, Button, FormControl, InputLabel, OutlinedInput, InputAdornment, Pagination, Stack, Alert} from "@mui/material";
 import LoadingButton from '@mui/lab/LoadingButton';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import photoVin_00005 from '../../assets/Photos/ref_00005.jpg'
-import photoVin_00006 from '../../assets/Photos/ref_00006.jpg'
-import photoVin_00007 from '../../assets/Photos/ref_00007.jpg'
-import photoVin_00008 from '../../assets/Photos/ref_00008.jpg'
+import photoVin_00001 from '../../assets/Photos/ref_00005.jpg'
+import photoVin_00002 from '../../assets/Photos/ref_00006.jpg'
+import photoVin_00003 from '../../assets/Photos/ref_00007.jpg'
+import photoVin_00004 from '../../assets/Photos/ref_00008.jpg'
 import GenricCard from './genricCard';
 import IconButton from '@mui/material/IconButton';
 import SearchIcon from '@mui/icons-material/Search';
@@ -19,38 +19,10 @@ import CircularProgress from '@mui/material/CircularProgress';
 const INPUT_XLS_PATH = 'ListeMaCave.xlsx';
 const NB_MILLS_PER_PAGE = 96;
 const imagesVins = [
-  photoVin_00005,
-  photoVin_00006,
-  photoVin_00007,
-  photoVin_00008,
-  photoVin_00005,
-  photoVin_00006,
-  photoVin_00007,
-  photoVin_00008,
-  photoVin_00005,
-  photoVin_00006,
-  photoVin_00007,
-  photoVin_00008,
-  photoVin_00005,
-  photoVin_00006,
-  photoVin_00007,
-  photoVin_00008,
-  photoVin_00005,
-  photoVin_00006,
-  photoVin_00007,
-  photoVin_00008,
-  photoVin_00005,
-  photoVin_00006,
-  photoVin_00007,
-  photoVin_00008,
-  photoVin_00005,
-  photoVin_00006,
-  photoVin_00007,
-  photoVin_00008,
-  photoVin_00005,
-  photoVin_00006,
-  photoVin_00007,
-  photoVin_00008
+  photoVin_00001,
+  photoVin_00002,
+  photoVin_00003,
+  photoVin_00004
 ]
 
 
@@ -247,7 +219,7 @@ export default function CarteDesVins() {
       // CREATE MAIN PDF DIV
       const globalDivPdf = document.createElement('div');
       globalDivPdf.style.cssText = "display: flex; flex-direction: column";
-      globalDivPdf.style.marginLeft = `${MARGIN }px`;
+      globalDivPdf.style.marginLeft = `${MARGIN}px`;
       globalDivPdf.style.width = `${HTML_Width-MARGIN*2}px`;
 
       // CREATE HEADER
@@ -465,6 +437,7 @@ export default function CarteDesVins() {
                 :
                 <Typography display="inline" variant="body1" sx={{fontFamily: 'Quicksand'}}>La liste ci-dessous n'a pas été triées. </Typography>
               }
+
               { textSearch !== '' ?
                 <>
                   <Typography display="inline" variant="body1" sx={{fontFamily: 'Quicksand'}}> Votre recherche "{textSearch}" donne {nbBouteilles} bouteilles</Typography>
@@ -517,7 +490,7 @@ export default function CarteDesVins() {
                     <GenricCard
                       key={"liste-" + index}
                       millesime={millesime}
-                      photoVin={imagesVins[index]}
+                      photoVin={imagesVins[index%4]}
                     />
                 )})}
               </Grid>

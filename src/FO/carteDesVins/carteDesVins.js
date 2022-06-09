@@ -382,7 +382,7 @@ export default function CarteDesVins() {
         }
       }
       setListeDesMillesimesManquants(missingDateTab);
-    };
+  };
 
 
   return (
@@ -397,9 +397,9 @@ export default function CarteDesVins() {
 
       <Box className="filter-bar">
         <Box className='filter-bar-menu'>
-          <LoadingButton name="yearsFilter" color="warning" size="large" loading={false} variant={isAnnee ? "contained" : "outlined"} onClick={onChangeFilter}>TRI PAR ANNEE</LoadingButton>
-          <LoadingButton name="pricesFilter" color='warning' size="large" loading={false} variant={isPrix ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR PRIX</LoadingButton>
-          <LoadingButton name="namesFilter" color='warning' size="large" loading={false} variant={isNom ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR NOM</LoadingButton>
+          <LoadingButton name="yearsFilter" color="warning" size="medium" loading={false} variant={isAnnee ? "contained" : "outlined"} onClick={onChangeFilter}>TRI PAR ANNEE</LoadingButton>
+          <LoadingButton name="pricesFilter" color='warning' size="medium" loading={false} variant={isPrix ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR PRIX</LoadingButton>
+          <LoadingButton name="namesFilter" color='warning' size="medium" loading={false} variant={isNom ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR NOM</LoadingButton>
           {/* <Tooltip sx={{ml:'10px'}} TransitionComponent={Fade} TransitionProps={{ timeout: 600 }} title="Visualiser les millésimes qui manquent au catalogue">
             <Button>Millésimes manquants</Button>
           </Tooltip> */}
@@ -473,7 +473,7 @@ export default function CarteDesVins() {
       </Alert>
 
       { Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)>1 &&
-        <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>
+        <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px 0"}}>
           <Pagination count={Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)} page={page} shape="rounded" onChange={HandlePagination}/>
         </Stack>
       }
@@ -495,7 +495,7 @@ export default function CarteDesVins() {
                 )})}
               </Grid>
 
-              {page*NB_MILLS_PER_PAGE <= listeDesMillesimes.length && <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px"}}>
+              {page*NB_MILLS_PER_PAGE <= listeDesMillesimes.length && <Stack spacing={2} sx={{display:'flex', alignItems:'center', p:"20px 0"}}>
                 <Pagination count={Math.ceil(listeDesMillesimes.length/NB_MILLS_PER_PAGE)} page={page} shape="rounded" onChange={HandlePagination}/>
               </Stack>}
             </>

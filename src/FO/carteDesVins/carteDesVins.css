@@ -45,6 +45,7 @@
 
 .filter-bar-menu {
     flex: 1;
+    display: flex;
     padding-bottom: 0;
 }
 
@@ -58,6 +59,7 @@
     }
 
     .filter-bar-menu {
-        padding-bottom: 20px;
+        display: flex;
+        padding-bottom: 10px;
     }
 }

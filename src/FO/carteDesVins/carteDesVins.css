@@ -34,3 +34,30 @@
     color:rosybrown;
     transform: scale(0) translate(-50%, -50%);
 }
+
+.filter-bar {
+    display: flex ;
+    flex-direction: row;
+    margin: auto 1vw;
+    padding: 10px 0;
+    align-items: center;
+}
+
+.filter-bar-menu {
+    flex: 1;
+    padding-bottom: 0;
+}
+
+@media screen and (max-width: 900px) {
+    .filter-bar {
+        display: flex ;
+        flex-direction: column;
+        margin: auto 1vw;
+        padding: 10px 0;
+        align-items: center;
+    }
+
+    .filter-bar-menu {
+        padding-bottom: 20px;
+    }
+}

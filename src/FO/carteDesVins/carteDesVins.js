@@ -395,8 +395,8 @@ export default function CarteDesVins() {
         Vinantic
       </Typography>
 
-      <Box sx={{display:'flex', m:'auto 1vw', py:2, px:0, alignItems:'center'}}>
-        <Box sx={{flex:1, display:'flex', justifyContent:"left", borderRadius:'5px', backgroundColor:'white'}}>
+      <Box className="filter-bar">
+        <Box className='filter-bar-menu'>
           <LoadingButton name="yearsFilter" color="warning" size="large" loading={false} variant={isAnnee ? "contained" : "outlined"} onClick={onChangeFilter}>TRI PAR ANNEE</LoadingButton>
           <LoadingButton name="pricesFilter" color='warning' size="large" loading={false} variant={isPrix ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR PRIX</LoadingButton>
           <LoadingButton name="namesFilter" color='warning' size="large" loading={false} variant={isNom ? "contained" : "outlined"} onClick={onChangeFilter} sx={{ml:'10px'}}>TRI PAR NOM</LoadingButton>
@@ -404,7 +404,7 @@ export default function CarteDesVins() {
             <Button>Millésimes manquants</Button>
           </Tooltip> */}
         </Box>
-        <Box sx={{marginLeft:'10px', textAlign:'center'}}>
+        <Box>
           <FormControl sx={{width: '250px'}} variant="outlined" color="warning">
             <InputLabel htmlFor="outlined-adornment-password">Rechercher...</InputLabel>
             <OutlinedInput

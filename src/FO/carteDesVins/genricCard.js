@@ -48,7 +48,7 @@ export default function GenricCard(props) {
             </CardContent>
 
 
-            <CardContent className={isMouse ? "card-content-hover" : "card-content"} sx={{position:'absolute', padding:'20% 10%', bottom:0, top:0, left:0, right:0, backgroundColor:'rgba(237, 108, 2, 0.1)'}}>
+            <CardContent className={isMouse ? "card-content-hover" : "card-content"} sx={{position:'absolute', padding:'10% 10%', bottom:0, top:0, left:0, right:0, backgroundColor:'rgba(237, 108, 2, 0.1)'}}>
                 <Typography sx={{fontWeight: "bold", fontFamily: 'Quicksand'}} variant="body2">
                   <br/>{millesime["Château"]??''}{!(millesime["Château"])?'':<br/>}
                   {millesime["Ville"]??''}{!(millesime["Ville"])?'':<br/>}
